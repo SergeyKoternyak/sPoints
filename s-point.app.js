@@ -14,7 +14,7 @@ class sPoints {
     init() {
         casper
             .start()
-            .each(config.urls, (casper, url) => {
+            .each(config.urls, (casper, url, pageIndex) => {
                 casper.each(config.devices, (casper, device) => {
                     const isRetina = device.ppi > 1 ? true : false;
                     
@@ -26,7 +26,7 @@ class sPoints {
                             casper.wait(this.TIME_INTERVAL_LONG);
                         })
                         .then(() => {
-                            config.playScrollAnimation && this.animationScrollPlay(device);
+                            config.playScrollAnimation && this.playScrollAnimation(device);
                         })
                         .then(() => {
                             let sectionParameters;
@@ -45,6 +45,7 @@ class sPoints {
                                 casper.wait(this.TIME_INTERVAL_SHORT, () => {
                                     this.captureArea({
                                         device: device,
+                                        pageIndex: pageIndex,
                                         section: section,
                                         sectionName: 'section' + (index + 1)
                                     });
@@ -61,8 +62,8 @@ class sPoints {
         return date.slice(4, 15).replace(/ /g, '-') + '_' + date.slice(16, 21).replace(':', '-');
     }
 
-    _setScreenshotName(device, screenName) {
-        return `screenshots/${ this.startDate }/${ device.type }/${ device.name }/${ device.viewport.width }x${ device.viewport.height }-${ screenName }.png`;
+    _setScreenshotName(pageName, device, screenName) {
+        return `screenshots/${this.startDate}/${device.type}/${device.name}/${pageName}/${device.viewport.width}x${device.viewport.height}-${screenName}.png`;
     }
 
     captureArea(params) {
@@ -77,7 +78,8 @@ class sPoints {
             height: params.device.viewport.height * params.device.ppi
         }, params.section);
 
-        casper.capture(this._setScreenshotName(params.device, params.sectionName), params.section);
+        const pageName = this._pageName(params.pageIndex);
+        casper.capture(this._setScreenshotName(pageName, params.device, params.sectionName), params.section);
     }
 
     checkSectionHeight(arr) {
@@ -111,7 +113,11 @@ class sPoints {
         return newArr
     }
 
-    animationScrollPlay(device) {
+    _pageName(pageindex) {
+        return (config.urls.length > 1) ? `page-${pageindex + 1}` : '';
+    }
+
+    playScrollAnimation(device) {
         const bodyHeight = casper.evaluate(evaluates.getBodyHeight);
         const scrollQuantity = Math.ceil(bodyHeight / device.viewport.height);
 
