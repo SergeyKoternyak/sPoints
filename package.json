@@ -1,0 +1,23 @@
+{
+  "name": "s-points",
+  "version": "1.0.0",
+  "description": "",
+  "main": "s-point.app.js",
+  "scripts": {
+    "screen": "casperjs s-point.app.js --engine=slimerjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SergeyKoternyak/sPoints.git"
+  },
+  "author": "Sergey Koternyak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergeyKoternyak/sPoints/issues"
+  },
+  "homepage": "https://github.com/SergeyKoternyak/sPoints#readme",
+  "dependencies": {
+    "casperjs": "^1.1.4",
+    "slimerjs": "^0.10.3"
+  }
+}
