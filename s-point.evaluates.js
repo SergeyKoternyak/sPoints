@@ -1,6 +1,4 @@
 module.exports = {
-    getOffsetTop: $el => parseInt($el.getBoundingClientRect().top + pageYOffset),
-    
     createByParts: (device, quantityParts = 1) => {
         const sectionHeight = document.body.scrollHeight / quantityParts;   
         const sections = [];
@@ -30,6 +28,10 @@ module.exports = {
             };
         });
     },
+
+    getBodyHeight: () => document.body.scrollHeight,
+
+    getOffsetTop: $el => parseInt($el.getBoundingClientRect().top + pageYOffset),
 
     setMobileScale: value => {
         const bodyStyle = document.body.style;

@@ -34,5 +34,6 @@ module.exports = {
     ],
     screenMethod: {
         type: 'part'
-    }
+    },
+    playScrollAnimation: true
 }

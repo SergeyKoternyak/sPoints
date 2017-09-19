@@ -26,6 +26,9 @@ class sPoints {
                             casper.wait(this.TIME_INTERVAL_LONG);
                         })
                         .then(() => {
+                            config.playScrollAnimation && this.animationScrollPlay(device);
+                        })
+                        .then(() => {
                             let sectionParameters;
 
                             if (config.screenMethod && config.screenMethod.type === 'section') {
@@ -106,6 +109,19 @@ class sPoints {
         })
     
         return newArr
+    }
+
+    animationScrollPlay(device) {
+        const bodyHeight = casper.evaluate(evaluates.getBodyHeight);
+        const scrollQuantity = Math.ceil(bodyHeight / device.viewport.height);
+
+        for (let i = 1; i < scrollQuantity; i++) {
+            casper
+                .then(() => casper.scrollTo(0, (device.viewport.height * device.ppi * i)))
+                .then(() => casper.wait(this.TIME_INTERVAL_SHORT));
+        }
+
+        casper.then(() => casper.scrollTo(0, 0));
     }
 }
 
