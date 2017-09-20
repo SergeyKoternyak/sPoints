@@ -1,5 +1,5 @@
 module.exports = {
-    createByParts: (device, quantityParts = 1) => {
+    createByParts: (device, quantityParts) => {
         const sectionHeight = document.body.scrollHeight / quantityParts;   
         const sections = [];
         let topPoint = 0;

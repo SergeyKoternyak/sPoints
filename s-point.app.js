@@ -25,21 +25,9 @@ class sPoints {
                             isRetina && casper.evaluate(evaluates.setMobileScale, device.ppi);
                             casper.wait(this.TIME_INTERVAL_LONG);
                         })
+                        .then(() => config.playScrollAnimation && this.playScrollAnimation(device))
                         .then(() => {
-                            config.playScrollAnimation && this.playScrollAnimation(device);
-                        })
-                        .then(() => {
-                            let sectionParameters;
-
-                            if (config.screenMethod && config.screenMethod.type === 'section') {
-                                sectionParameters = casper.evaluate(evaluates.createByPoints, device, evaluates.getOffsetTop);
-                            } else {
-                                if (config.screenMethod && config.screenMethod.userParts) {
-                                    sectionParameters = config.screenMethod.userParts;
-                                } else {
-                                    sectionParameters = casper.evaluate(evaluates.createByParts, device, config.screenMethod && config.screenMethod.quantity);
-                                }
-                            }
+                            const sectionParameters = this.getSectionParameters(config.screenMethod, device);
 
                             casper.each(this.checkSectionHeight(sectionParameters), (casper, section, index) => {
                                 casper.wait(this.TIME_INTERVAL_SHORT, () => {
@@ -51,22 +39,15 @@ class sPoints {
                                     });
                                 });
                             });
-                        })
+                        });
                 })
             })
             .run(() => casper.exit());
     }
 
-    getDate() {
-        const date = new Date().toString();
-        return date.slice(4, 15).replace(/ /g, '-') + '_' + date.slice(16, 21).replace(':', '-');
-    }
-
-    _setScreenshotName(pageName, device, screenName) {
-        return `screenshots/${this.startDate}/${device.type}/${device.name}/${pageName}/${device.viewport.width}x${device.viewport.height}-${screenName}.png`;
-    }
-
     captureArea(params) {
+        const pageName = this._pageName(params.pageIndex);
+        
         params = Object.assign({
             section: {}
         }, params);
@@ -78,7 +59,6 @@ class sPoints {
             height: params.device.viewport.height * params.device.ppi
         }, params.section);
 
-        const pageName = this._pageName(params.pageIndex);
         casper.capture(this._setScreenshotName(pageName, params.device, params.sectionName), params.section);
     }
 
@@ -113,6 +93,28 @@ class sPoints {
         return newArr
     }
 
+    getDate() {
+        const date = new Date().toString();
+        return date.slice(4, 15).replace(/ /g, '-') + '_' + date.slice(16, 21).replace(':', '-');
+    }
+
+    getSectionParameters(screenMethod, device) {
+        screenMethod = Object.assign({
+            type: 'parts',
+            quantity: 1
+        }, screenMethod);
+
+        if (screenMethod.type === 'sections') {
+            return casper.evaluate(evaluates.createByPoints, device, evaluates.getOffsetTop);
+        } else {
+            if (Array.isArray(screenMethod.userParts)) {
+                return screenMethod.userParts;
+            } else {
+                return casper.evaluate(evaluates.createByParts, device, screenMethod.quantity);
+            }
+        }
+    }
+
     _pageName(pageindex) {
         return (config.urls.length > 1) ? `page-${pageindex + 1}` : '';
     }
@@ -128,6 +130,10 @@ class sPoints {
         }
 
         casper.then(() => casper.scrollTo(0, 0));
+    }
+
+    _setScreenshotName(pageName, device, screenName) {
+        return `screenshots/${this.startDate}/${device.type}/${device.name}/${pageName}/${device.viewport.width}x${device.viewport.height}-${screenName}.png`;
     }
 }
 
